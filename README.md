@@ -40,7 +40,6 @@ QuinteroCarrillo-post1-u10/
 ### 1. Clonar el repositorio y preparar el entorno
 
 ```bash
-git clone https://github.com/neidys06/QuinteroCarrillo-post1-u10.git
 cd QuinteroCarrillo-post1-u10
 ```
 
@@ -82,7 +81,7 @@ done
 
 Estos valores determinan los **puntos de inflexión** esperados en el benchmark: al cruzar 32 KB el acceso deja de ser servido por L1, al cruzar 512 KB deja L2, y al superar 4 MB los datos deben leerse desde RAM.
 
-![Checkpoint 1](captures/checkpoint1.png)
+![Checkpoint 1](captures/Checkpoint1.png)
 
 ---
 
@@ -117,7 +116,7 @@ El programa mide la latencia media en nanosegundos por byte (`ns/B`) para acceso
 
 > En el acceso secuencial los saltos son relativamente suaves porque el hardware realiza *prefetching*: detecta el patrón lineal y carga los datos con anticipación, amortiguando parcialmente el costo del *miss*.
 
-![Checkpoint 2](captures/checkpoint2.png)
+![Checkpoint 2](captures/Checkpoint2.png)
 
 ---
 
@@ -157,7 +156,7 @@ El salto más abrupto ocurre al superar ~1–2 MB, que coincide con el rango don
 
 El acceso aleatorio destruye ambas ventajas, generando *cache misses* y *TLB misses* casi en cada acceso cuando el array supera el tamaño del caché.
 
-![Checkpoint 3](captures/checkpoint3.png)
+![Checkpoint 3](captures/Checkpoint3.png)
 
 ---
 
@@ -182,8 +181,8 @@ Velocidad   Tamaño
 ```
 **Conclusiones**
 
-La jerarquía de caché tiene un impacto medible y real sobre el rendimiento. Los resultados confirman empíricamente lo que la teoría predice: los accesos a datos que caben en L1 (~1.019 ns/B) son significativamente más rápidos que los que deben ir a RAM (~1.247 ns/B en secuencial y hasta 15.586 ns/elemento en aleatorio). La diferencia no es teórica — se observó directamente en la ejecución del programa.
-La localidad espacial es el factor más determinante para el rendimiento de acceso a memoria. El acceso secuencial aprovecha que el hardware carga líneas de caché completas (64 bytes) anticipándose al siguiente acceso (prefetching). Esto amortigua el costo de los cache misses y mantiene la latencia estable incluso para arrays que superan L1 y L2. Diseñar estructuras de datos y algoritmos que recorran memoria de forma lineal es una de las optimizaciones más efectivas disponibles.
-El acceso aleatorio es devastador para el rendimiento cuando el array supera el tamaño del caché. Con arrays de 16–64 MB, el acceso aleatorio es hasta 12× más lento que el secuencial. Cada acceso genera un cache miss completo porque el prefetcher no puede predecir el siguiente índice aleatorio, y a partir de ~1–2 MB se suman los TLB misses, que añaden el costo de la traducción de direcciones virtuales a físicas en cada acceso.
-Los tamaños de caché del procesador son umbrales de diseño, no solo datos de especificación. Conocer que L1=32 KB, L2=512 KB y L3=4 MB del procesador utilizado permite predecir dónde aparecerán los puntos de inflexión en el rendimiento de cualquier programa que trabaje sobre grandes volúmenes de datos. Este conocimiento es esencial para optimizar algoritmos de procesamiento de imágenes, matrices, bases de datos en memoria o cualquier aplicación de alto rendimiento.
-Compilar con -O0 fue indispensable para la validez del experimento. Las optimizaciones del compilador pueden eliminar bucles que parecen no producir efectos visibles, invalidando completamente el benchmark. El uso de volatile complementa esta protección al nivel del lenguaje C.
+1. La jerarquía de caché tiene un impacto medible y real sobre el rendimiento. Los resultados confirman empíricamente lo que la teoría predice: los accesos a datos que caben en L1 (~1.019 ns/B) son significativamente más rápidos que los que deben ir a RAM (~1.247 ns/B en secuencial y hasta 15.586 ns/elemento en aleatorio). La diferencia no es teórica — se observó directamente en la ejecución del programa.
+2. La localidad espacial es el factor más determinante para el rendimiento de acceso a memoria. El acceso secuencial aprovecha que el hardware carga líneas de caché completas (64 bytes) anticipándose al siguiente acceso (prefetching). Esto amortigua el costo de los cache misses y mantiene la latencia estable incluso para arrays que superan L1 y L2. Diseñar estructuras de datos y algoritmos que recorran memoria de forma lineal es una de las optimizaciones más efectivas disponibles.
+3. El acceso aleatorio es devastador para el rendimiento cuando el array supera el tamaño del caché. Con arrays de 16–64 MB, el acceso aleatorio es hasta 12× más lento que el secuencial. Cada acceso genera un cache miss completo porque el prefetcher no puede predecir el siguiente índice aleatorio, y a partir de ~1–2 MB se suman los TLB misses, que añaden el costo de la traducción de direcciones virtuales a físicas en cada acceso.
+4. Los tamaños de caché del procesador son umbrales de diseño, no solo datos de especificación. Conocer que L1=32 KB, L2=512 KB y L3=4 MB del procesador utilizado permite predecir dónde aparecerán los puntos de inflexión en el rendimiento de cualquier programa que trabaje sobre grandes volúmenes de datos. Este conocimiento es esencial para optimizar algoritmos de procesamiento de imágenes, matrices, bases de datos en memoria o cualquier aplicación de alto rendimiento.
+5. Compilar con -O0 fue indispensable para la validez del experimento. Las optimizaciones del compilador pueden eliminar bucles que parecen no producir efectos visibles, invalidando completamente el benchmark. El uso de volatile complementa esta protección al nivel del lenguaje C.
